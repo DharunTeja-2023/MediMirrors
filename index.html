@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="shortcut icon" href="assets/logo.png" type="image/x-icon">
+  <title>MediMirror</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.2/fetch.min.js"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <img src="assets/logo.png" alt="MediMirror Logo" class="logo" style="height: 25%; width: 25%;"/>
+    <h1>MediMirror</h1>
+    <p class="tagline">AI + AR Powered Prescription Assistant</p>
+  </section>
+
+  <!-- Add to body, near the top or hero section -->
+<div class="auth-buttons">
+  <button onclick="window.location.href='login.html'" class="auth-button">🔐 Login</button>
+  <button onclick="window.location.href='signup.html'" class="auth-button">📝 Sign Up</button>
+</div>
+<h2 id="welcomeMessage"></h2>
+
+
+  <!-- Features -->
+  <section id="features" class="section">
+    <h2>Core Features</h2>
+    <div class="features">
+      <div class="card" data-aos="fade-up">
+        <h3><i class="fas fa-microphone"></i> Voice Input</h3>
+        <p>Understand prescriptions using voice commands in multiple languages.</p>
+      </div>
+
+      <div class="card" data-aos="fade-up">
+        <h3>🔔 Smart Reminders</h3>
+        <p>Get notified when it’s time to take your medications.</p>
+      </div>
+
+      <div class="card" data-aos="fade-up">
+        <h3>📷 AR Camera</h3>
+        <p>Visualize how to take medication using augmented reality.</p>
+      </div>
+
+      <div class="card" data-aos="fade-up">
+        <h3>🌐 Multilingual Support</h3>
+        <p>Instructions in regional languages, both voice and text.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Voice Prescription Assistant -->
+  <section id="voice-assistant" class="section">
+    <h2>🩺 Voice Prescription Assistant</h2>
+    <p>Click below, speak your prescription naturally, and let MediMirror do the rest.</p>
+  
+    <button class="mic-button" onclick="toggleListening()">🎙 Start Listening</button>
+  
+    <div class="voice-feedback">
+      <p id="voice-output" class="voice-output">Press button for Listening</p>
+    </div>
+  </section>
+  
+  <div class="table-container">
+    <table class="prescription-table">
+      <thead>
+        <tr>
+          <th>Tablet Name</th>
+          <th>Dose</th>
+          <th>Frequency</th>
+          <th>Time</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody id="prescription-table-body"></tbody>
+    </table>
+  </div>
+  <div class="action-buttons">
+    <button class="tts-button" onclick="repeatSpeech()">🔁 Repeat Prescription</button>
+    <button class="tts-button danger" onclick="resetTable()">🗑 Reset Table</button>
+  </div>
+
+   <!-- AR Camera Section -->
+<section class="section dark" id="cameraMode">
+  <h2>📷 AR Camera Assistant</h2>
+  <p>Point your camera at a prescription. Scanning will begin automatically.</p>
+
+  <div class="camera-container">
+    <video id="video-preview" autoplay playsinline></video>
+    <canvas id="snapshot-canvas" class="hidden"></canvas>
+    <div class="overlay-frame"></div>
+  </div>
+
+  <div class="upload-section">
+    <label>📄 Upload Prescription (Image or PDF):</label>
+    <input type="file" id="fileInput" accept="image/*,.pdf">
+    <div id="extracted-text">🧾 Extracted text will appear here...</div>
+  </div>
+  
+  <div id="retry-camera" class="hidden">
+    <button class="tts-button" onclick="retryCamera()">🔄 Retry Camera Access</button>
+  </div>
+  
+</section>
+
+
+<div class="table-container">
+  <table class="prescription-table">
+    <thead>
+      <tr>
+        <th>Tablet Name</th>
+        <th>Dose</th>
+        <th>Frequency</th>
+        <th>Time</th>
+        <th>Duration</th>
+      </tr>
+    </thead>
+    <tbody id="prescription-table-body"></tbody>
+  </table>
+</div>
+
+<div class="action-buttons">
+  <button class="tts-button" onclick="repeatSpeech()">🔁 Repeat Prescription</button>
+  <button class="tts-button danger" onclick="resetTable()">🗑 Reset Table</button>
+</div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Built with 💡 by Team MediMirror | GEENOVATE 2K25</p>
+    <!-- <div class="social-icons">
+      <a href="#"><i class="fab fa-github"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
+    </div> -->
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>AOS.init();</script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtzfodLw2i94_MLdF8gkkU2s0covy2ec8",
+    authDomain: "medimirror-12288.firebaseapp.com",
+    projectId: "medimirror-12288",
+    storageBucket: "medimirror-12288.appspot.com",
+    messagingSenderId: "504600467699",
+    appId: "1:504600467699:web:9d13f1babb484c42187f86"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  // firebase.auth().onAuthStateChanged(user => {
+  //   if (!user) {
+  //     // Not logged in
+  //     alert("⚠️ You must be logged in to access this page.");
+  //     window.location.href = "login.html"; // Redirect to login page
+  //   }
+  //   // else: logged in, continue normally
+  // });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const extractedTextDiv = document.getElementById('extracted-text');
+  extractedTextDiv.textContent = "🔄 Extracting...";
+
+  if (file.type.startsWith('image/')) {
+    // 🔥 Handle Image Upload
+    await extractTextFromImage(file);
+  } else if (file.type === 'application/pdf') {
+    // 🔥 Handle PDF Upload
+    await extractTextFromPDF(file);
+  } else {
+    extractedTextDiv.textContent = "❌ Unsupported file type.";
+  }
+});
+
+async function extractTextFromImage(file) {
+  const reader = new FileReader();
+  reader.onload = async function(event) {
+    const img = new Image();
+    img.src = event.target.result;
+    img.onload = async function() {
+      const { data: { text } } = await Tesseract.recognize(img, 'eng');
+      document.getElementById('extracted-text').textContent = text;
+    };
+  };
+  reader.readAsDataURL(file);
+}
+
+async function extractTextFromPDF(file) {
+  const fileReader = new FileReader();
+  fileReader.onload = async function() {
+    const typedarray = new Uint8Array(this.result);
+    const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+    const page = await pdf.getPage(1); // 📄 Only first page
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+    const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+    document.getElementById('extracted-text').textContent = text;
+  };
+  fileReader.readAsArrayBuffer(file);
+}
+
+// window.addEventListener('load', () => {
+//   const name = localStorage.getItem('patientName');
+//   if (name) {
+//     document.getElementById('welcomeMessage').innerText = `👋 Welcome, ${name}!`;
+//   }
+// });
+
+</script>
+
+  
+
+</body>
+</html>

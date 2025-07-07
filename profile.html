@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Complete Profile - MediMirror</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+    }
+    .auth-container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1b1b1b;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.1);
+    }
+    input, button, label {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #00ffff55;
+      background: #222;
+      color: #fff;
+    }
+    button {
+      background: linear-gradient(135deg, #00FFFF, #7F00FF);
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #qrcode {
+      margin-top: 20px;
+      text-align: center;
+    }
+    pre {
+      color: #aaa;
+      font-size: 0.75rem;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h2>👤 Complete Your Profile</h2>
+
+    <input type="text" id="name" placeholder="Full Name" required />
+    <input type="email" id="email" placeholder="Email ID" required />
+    <input type="tel" id="phone" placeholder="Mobile Number" required />
+    <input type="date" id="dob" placeholder="DOB" />
+    <input type="number" id="age" placeholder="Age" />
+    <input type="text" id="issues" placeholder="Health Issues" />
+    <input type="text" id="blood" placeholder="Blood Group" />
+    <input type="text" id="contact" placeholder="Emergency Contact" />
+    <input type="text" id="address" placeholder="Address" />
+
+    <label for="records">📁 Upload Past Medical Records:</label>
+    <input type="file" id="records" multiple />
+
+    <button onclick="saveAndGenerateQR()">Save & Generate QR</button>
+
+    <div id="qrcode"></div>
+  </div>
+  <button id="goHomeBtn" style="display:none;" class="go-home-button">
+    🏠 Go to Home
+  </button>
+  
+
+  <script>
+    function saveAndGenerateQR() {
+      const profile = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        dob: document.getElementById("dob").value,
+        age: document.getElementById("age").value,
+        issues: document.getElementById("issues").value,
+        blood: document.getElementById("blood").value,
+        contact: document.getElementById("contact").value,
+        address: document.getElementById("address").value,
+        medicalFiles: document.getElementById("records")?.files?.length || 0
+      };
+
+      localStorage.setItem("userProfile", JSON.stringify(profile));
+
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(profile))));
+      const qrDiv = document.getElementById("qrcode");
+      qrDiv.innerHTML = "";
+
+      new QRCode(qrDiv, {
+        text: encoded,
+        width: 250,
+        height: 250
+      });
+
+    }
+
+    document.getElementById('goHomeBtn').style.display = 'block';
+
+
+    document.getElementById('goHomeBtn').addEventListener('click', () => {
+  const patientName = document.getElementById('name').value; // Or wherever you take Name
+  localStorage.setItem('patientName', patientName);
+  window.location.href = "index.html";
+});
+
+  </script>
+</body>
+</html>

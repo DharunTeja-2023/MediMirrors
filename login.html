@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MediMirror Login</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <style>
+    body { background: #111; color: #fff; font-family: Arial; padding: 30px; }
+    .container { max-width: 450px; margin: auto; background: #1b1b1b; padding: 25px; border-radius: 12px; box-shadow: 0 0 15px rgba(0,255,255,0.2); }
+    input, button, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; background: #222; border: 1px solid #00ffff44; color: white; }
+    button { background: linear-gradient(135deg, #00FFFF, #7F00FF); font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🔐 MediMirror Login</h2>
+
+  <select id="roleSelector" onchange="toggleRole()">
+    <option value="patient">👤 Patient</option>
+    <option value="doctor">👨‍⚕️ Doctor</option>
+  </select>
+
+  <!-- Patient Section -->
+  <div id="patient-section">
+    <select id="patientLoginType" onchange="togglePatientLoginType()">
+      <option value="email">Login with Email</option>
+      <option value="phone">Login with Phone</option>
+    </select>
+
+    <!-- Patient Email Login -->
+    <div id="patient-email-login">
+      <input type="email" id="patientEmail" placeholder="Email">
+      <input type="password" id="patientPassword" placeholder="Password">
+      <button onclick="loginPatientEmail()">Login Patient with Email</button>
+    </div>
+
+    <!-- Patient Phone Login -->
+    <div id="patient-phone-login" style="display:none;">
+      <input type="tel" id="patientPhone" placeholder="Phone Number (+91...)">
+      <button onclick="sendPatientLoginOTP()">Send OTP</button>
+
+      <div id="otp-section" style="display:none;">
+        <input type="text" id="patientOTP" placeholder="Enter OTP">
+        <button onclick="verifyPatientLoginOTP()">Verify & Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Doctor Section -->
+  <div id="doctor-section" style="display:none;">
+    <input type="text" id="doctorId" placeholder="Doctor ID (e.g. DOC1234)">
+    <input type="password" id="doctorPassword" placeholder="Password">
+    <button onclick="loginDoctor()">Login Doctor</button>
+  </div>
+</div>
+
+<div style="text-align: center; margin-top: 20px;">
+  <a href="#" onclick="forgotPassword()" style="color: #00ffff; text-decoration: underline; font-size: 0.9rem;">Forgot Password?</a>
+</div>
+
+<div style="text-align: center; margin-top: 10px;">
+  <span style="font-size: 0.9rem;">Don't have an account? <a href="signup.html" style="color: #7f00ff; text-decoration: underline;">Sign up here</a></span>
+</div>
+
+
+<!-- IMPORTANT: Empty div for reCAPTCHA (hidden) -->
+<div id="recaptcha-container" style="display:none;"></div>
+
+<!-- <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtzfodLw2i94_MLdF8gkkU2s0covy2ec8",
+    authDomain: "medimirror-12288.firebaseapp.com",
+    projectId: "medimirror-12288",
+    storageBucket: "medimirror-12288.appspot.com",
+    messagingSenderId: "504600467699",
+    appId: "1:504600467699:web:9d13f1babb484c42187f86"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  function toggleRole() {
+    const role = document.getElementById("roleSelector").value;
+    document.getElementById("patient-section").style.display = role === "patient" ? "block" : "none";
+    document.getElementById("doctor-section").style.display = role === "doctor" ? "block" : "none";
+  }
+
+  function togglePatientLoginType() {
+    const type = document.getElementById("patientLoginType").value;
+    document.getElementById("patient-email-login").style.display = type === "email" ? "block" : "none";
+    document.getElementById("patient-phone-login").style.display = type === "phone" ? "block" : "none";
+  }
+
+  // Doctor Login
+  function loginDoctor() {
+    const doctorId = document.getElementById("doctorId").value.trim();
+    const password = document.getElementById("doctorPassword").value;
+    const email = `${doctorId}@doctors.medimirror.com`;
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(() => window.location.href = "doctor-dashboard.html")
+      .catch(err => alert("❌ " + err.message));
+  }
+
+  // Patient Email Login
+  function verifyPatientLoginOTP() {
+  const otp = document.getElementById("patientOTP").value;
+  patientLoginConfirmation.confirm(otp)
+    .then(() => {
+      alert("✅ Login Successful!");
+      window.location.href = "index.html";  // 🚀 Go to Home, not Profile
+    })
+    .catch(err => alert("❌ OTP verification failed: " + err.message));
+  }
+
+function forgotPassword() {
+  const email = prompt("📩 Enter your registered email to reset password:");
+  if (!email) return;
+
+  firebase.auth().sendPasswordResetEmail(email)
+    .then(() => {
+      alert("✅ Password reset email sent! Check your inbox.");
+    })
+    .catch(err => {
+      alert("❌ Error: " + err.message);
+    });
+}
+
+  
+
+
+  let patientLoginConfirmation;
+
+  // Initialize invisible reCAPTCHA ONCE
+  window.onload = () => {
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+    recaptchaVerifier.render();
+  };
+
+  // Patient Phone OTP Login
+  function sendPatientLoginOTP() {
+    const phone = document.getElementById("patientPhone").value;
+    firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
+      .then((result) => {
+        patientLoginConfirmation = result;
+        document.getElementById("otp-section").style.display = "block"; // Show OTP input after OTP sent
+        alert("✅ OTP sent to " + phone);
+      })
+      .catch(err => alert("❌ OTP error: " + err.message));
+  }
+
+  function verifyPatientLoginOTP() {
+    const otp = document.getElementById("patientOTP").value;
+    patientLoginConfirmation.confirm(otp)
+      .then(() => {
+        alert("✅ Login Successful!");
+        window.location.href = "profile.html";
+      })
+      .catch(err => alert("❌ OTP verification failed: " + err.message));
+  }
+</script> -->
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor QR Scanner - MediMirror</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  
+  <!-- QR Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    #qr-reader {
+      width: 300px;
+      margin: 20px auto;
+    }
+    .profile {
+      margin-top: 20px;
+      padding: 10px;
+      background: #1b1b1b;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔍 Doctor QR Scanner</h2>
+
+  <div id="qr-reader"></div>
+  <div id="result" class="profile"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtzfodLw2i94_MLdF8gkkU2s0covy2ec8",
+      authDomain: "medimirror-12288.firebaseapp.com",
+      projectId: "medimirror-12288",
+      storageBucket: "medimirror-12288.appspot.com",
+      messagingSenderId: "504600467699",
+      appId: "1:504600467699:web:9d13f1babb484c42187f86"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // let currentUser = null;
+
+    // firebase.auth().onAuthStateChanged(async user => {
+    //   if (user) {
+    //     const doc = await db.collection("users").doc(user.uid).get();
+    //     if (doc.exists && doc.data().role === "doctor") {
+    //       currentUser = user;
+    //       startScanner();
+    //     } else {
+    //       alert("Access denied. Only doctors can scan profiles.");
+    //       window.location.href = "login.html";
+    //     }
+    //   } else {
+    //     alert("Please login first!");
+    //     window.location.href = "login.html";
+    //   }
+    // });
+
+    function startScanner() {
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: 250
+        },
+        qrCodeMessage => {
+          try {
+            const decodedData = JSON.parse(decodeURIComponent(escape(atob(qrCodeMessage))));
+            document.getElementById("result").innerHTML = `
+              <h3>👤 Patient Profile</h3>
+              <p><strong>Name:</strong> ${decodedData.name}</p>
+              <p><strong>Email:</strong> ${decodedData.email}</p>
+              <p><strong>Phone:</strong> ${decodedData.phone}</p>
+              <p><strong>DOB:</strong> ${decodedData.dob}</p>
+              <p><strong>Age:</strong> ${decodedData.age}</p>
+              <p><strong>Health Issues:</strong> ${decodedData.issues}</p>
+              <p><strong>Blood Group:</strong> ${decodedData.blood}</p>
+              <p><strong>Emergency Contact:</strong> ${decodedData.contact}</p>
+              <p><strong>Address:</strong> ${decodedData.address}</p>
+              <p><strong>Uploaded Files:</strong> ${decodedData.medicalFiles}</p>
+            `;
+          } catch (e) {
+            document.getElementById("result").innerHTML = `
+              <h3>⚠️ Unauthorized QR</h3>
+              <p>${qrCodeMessage}</p>
+            `;
+          }
+          html5QrCode.stop();
+        },
+        errorMessage => {
+          console.log(errorMessage);
+        }
+      ).catch(err => {
+        console.error("Unable to start scanning", err);
+      });
+    }
+  </script>
+</body>
+</html>

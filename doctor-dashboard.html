@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Doctor Dashboard - MediMirror</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #1b1b1b;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,255,255,0.1);
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    .button {
+      background: linear-gradient(135deg, #00FFFF, #7F00FF);
+      padding: 12px 20px;
+      font-size: 1rem;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    .logout {
+      margin-top: 30px;
+      background: #ff4d4d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>👨‍⚕️ Welcome, <span id="doctorName">Doctor</span></h2>
+
+    <button class="button" onclick="goToScanner()">📷 Scan Patient QR</button>
+
+    <button class="button logout" onclick="logout()">🔓 Logout</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtzfodLw2i94_MLdF8gkkU2s0covy2ec8",
+      authDomain: "medimirror-12288.firebaseapp.com",
+      projectId: "medimirror-12288",
+      storageBucket: "medimirror-12288.appspot.com",
+      messagingSenderId: "504600467699",
+      appId: "1:504600467699:web:9d13f1babb484c42187f86"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // firebase.auth().onAuthStateChanged(async user => {
+    //   if (user) {
+    //     const doc = await db.collection("users").doc(user.uid).get();
+    //     if (doc.exists && doc.data().role === "doctor") {
+    //       document.getElementById("doctorName").textContent = user.email.split("@")[0];
+    //     } else {
+    //       alert("Unauthorized access");
+    //       window.location.href = "login.html";
+    //     }
+    //   } else {
+    //     window.location.href = "login.html";
+    //   }
+    // });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    function goToScanner() {
+      window.location.href = "doctor-scan.html";
+    }
+  </script>
+</body>
+</html>
